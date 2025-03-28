@@ -59,7 +59,7 @@ class CustomDataSet(Dataset):
         if random.random() > 0.5:
             label = 0
             different_folder = random.choice(self.image_paths)
-            while different_folder == self.image_paths[index]:  # Ensure different class
+            while different_folder == self.image_paths[index]:  
                 different_folder = random.choice(self.image_paths)
             img2 = Image.open(os.path.join(self.root, different_folder, random.choice(os.listdir(os.path.join(self.root, different_folder))))).convert('RGB')
 
@@ -67,30 +67,30 @@ class CustomDataSet(Dataset):
             img1 = self.transform(img1)
             img2 = self.transform(img2)
 
-        return img1, img2, torch.tensor([label], dtype=torch.float32)  # Keep correct shape
+        return img1, img2, torch.tensor([label], dtype=torch.float32)  
 
-# Hyperparameters
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 DEFAULT_DIM_SIZE = 224
 
-# Correct normalization
+
 transform = transforms.Compose([
     transforms.Resize((DEFAULT_DIM_SIZE, DEFAULT_DIM_SIZE)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-"""
+
 train_dataset = CustomDataSet('datasets/logos/train/', transform=transform)
 train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
 
 SNN_MODEL = SiameseNet().to(device)
 
 criterion = nn.BCEWithLogitsLoss()
-optimizer = torch.optim.AdamW(SNN_MODEL.parameters(), lr=0.0001)  # Lower LR
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)  # Halve LR every 10 epochs
+optimizer = torch.optim.AdamW(SNN_MODEL.parameters(), lr=0.0001) 
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)  
 
 for name, param in SNN_MODEL.feature_extractor.named_parameters():
-    if "layer4" in name:  # Unfreeze the last ResNet block
+    if "layer4" in name: 
         param.requires_grad = True
 
 num_epochs = 100
@@ -115,5 +115,5 @@ for epoch in range(num_epochs):
     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {total_loss / len(train_loader)}")
 
 torch.save(SNN_MODEL.state_dict(), 'siamese_model.pth')
-"""
+
 
